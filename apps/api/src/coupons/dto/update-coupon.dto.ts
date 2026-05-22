@@ -7,4 +7,6 @@ export class UpdateCouponDto {
   purchaseDate?: string;
   expiryDate?: string;
   tags?: string[];
+  uncertain?: boolean;
+  remainingAmount?: number;
 }

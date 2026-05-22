@@ -29,6 +29,11 @@ export class CouponsController {
     return this.service.getExpired(user.id);
   }
 
+  @Get('uncertain')
+  getUncertain(@CurrentUser() user: { id: string }) {
+    return this.service.getUncertain(user.id);
+  }
+
   @Get('history')
   getAllHistory(@CurrentUser() user: { id: string }) {
     return this.service.getAllHistory(user.id);

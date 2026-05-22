@@ -1,6 +1,7 @@
-import { Body, Controller, Post, Res, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, HttpCode } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './current-user.decorator';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './public.decorator';
 
@@ -31,6 +32,11 @@ export class AuthController {
     const token = await this.authService.signup(dto.username, dto.password);
     res.cookie('token', token, COOKIE_OPTIONS);
     return { ok: true };
+  }
+
+  @Get('me')
+  me(@CurrentUser() user: { id: string; username: string }) {
+    return { username: user.username };
   }
 
   @Post('logout')

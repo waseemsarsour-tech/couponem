@@ -19,6 +19,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   auth: {
+    me: () => request<{ username: string }>('/auth/me'),
     login: (username: string, password: string) =>
       request<{ ok: boolean }>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
     signup: (username: string, password: string) =>
@@ -28,6 +29,7 @@ export const api = {
   },
   coupons: {
     getActive: () => request<Coupon[]>('/coupons/active'),
+    getUncertain: () => request<Coupon[]>('/coupons/uncertain'),
     getUsed: () => request<Coupon[]>('/coupons/used'),
     getExpired: () => request<Coupon[]>('/coupons/expired'),
     getAllHistory: () => request<PurchaseWithCoupon[]>('/coupons/history'),

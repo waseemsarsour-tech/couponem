@@ -42,19 +42,25 @@ export class CouponsService {
   async getActive(userId: string): Promise<CouponWithUrgency[]> {
     const today = startOfDay(new Date());
     return (await this.repository.findAll(userId))
-      .filter((c) => c.remainingAmount > 0 && startOfDay(c.expiryDate) >= today)
+      .filter((c) => !c.uncertain && c.remainingAmount > 0 && startOfDay(c.expiryDate) >= today)
       .map(withUrgency);
   }
 
   async getUsed(userId: string): Promise<Coupon[]> {
-    return (await this.repository.findAll(userId)).filter((c) => c.remainingAmount === 0);
+    return (await this.repository.findAll(userId)).filter((c) => !c.uncertain && c.remainingAmount === 0);
   }
 
   async getExpired(userId: string): Promise<Coupon[]> {
     const today = startOfDay(new Date());
     return (await this.repository.findAll(userId)).filter(
-      (c) => startOfDay(c.expiryDate) < today && c.remainingAmount > 0,
+      (c) => !c.uncertain && startOfDay(c.expiryDate) < today && c.remainingAmount > 0,
     );
+  }
+
+  async getUncertain(userId: string): Promise<CouponWithUrgency[]> {
+    return (await this.repository.findAll(userId))
+      .filter((c) => c.uncertain)
+      .map(withUrgency);
   }
 
   async getAllHistory(userId: string): Promise<PurchaseWithCoupon[]> {
