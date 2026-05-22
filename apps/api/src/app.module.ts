@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { CouponsModule } from './coupons/coupons.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [AuthModule, CouponsModule],
+  imports: [PrismaModule, AuthModule, CouponsModule],
   controllers: [AppController],
   providers: [
     AppService,

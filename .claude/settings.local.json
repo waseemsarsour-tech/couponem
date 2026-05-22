@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm dev:api)",
-      "Bash(pnpm dlx *)"
+      "Bash(pnpm dlx *)",
+      "PowerShell(cd c:\\\\myapps\\\\couponem\\\\apps\\\\api; $job = Start-Job -ScriptBlock { Set-Location \"c:\\\\myapps\\\\couponem\\\\apps\\\\api\"; pnpm run start 2>&1 }; Start-Sleep -Seconds 12; Receive-Job $job -Keep | Select-Object -Last 3; Write-Host \"---TESTING---\"; $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession; Invoke-WebRequest -Uri \"http://localhost:3000/auth/signup\" -Method POST -ContentType \"application/json\" -Body '{\"username\":\"alice\",\"password\":\"pass123\"}' -SessionVariable sess1; $r = Invoke-WebRequest -Uri \"http://localhost:3000/coupons/active\" -WebSession $sess1; Write-Host \"Alice active coupons: $\\($r.Content\\)\"; Stop-Job $job; Remove-Job $job)"
     ]
   }
 }

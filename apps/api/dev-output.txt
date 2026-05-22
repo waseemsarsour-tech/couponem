@@ -1,0 +1,4 @@
+$ nest start --watch
+[2J[3J[H[[90m15:46:44[0m] Starting compilation in watch mode...
+
+^C[ELIFECYCLE] Command failed with exit code 3221225786.
