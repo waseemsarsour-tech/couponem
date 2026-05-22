@@ -4,12 +4,10 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './public.decorator';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax',
-  secure: isProd,
+  sameSite: 'lax' as const,
+  secure: false,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
