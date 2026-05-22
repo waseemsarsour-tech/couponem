@@ -5,6 +5,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...options,
   });
   if (!res.ok) {
@@ -15,6 +16,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  auth: {
+    login: (username: string, password: string) =>
+      request<{ ok: boolean }>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+    signup: (username: string, password: string) =>
+      request<{ ok: boolean }>('/auth/signup', { method: 'POST', body: JSON.stringify({ username, password }) }),
+    logout: () =>
+      request<{ ok: boolean }>('/auth/logout', { method: 'POST' }),
+  },
   coupons: {
     getActive: () => request<Coupon[]>('/coupons/active'),
     getUsed: () => request<Coupon[]>('/coupons/used'),
