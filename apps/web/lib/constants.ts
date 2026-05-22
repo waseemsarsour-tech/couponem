@@ -1,1 +1,1 @@
-export const PRESET_TAGS = ['food', 'clothes', 'attractions'] as const;
+export const PRESET_TAGS = ['food', 'grocery', 'clothes', 'attractions'] as const;

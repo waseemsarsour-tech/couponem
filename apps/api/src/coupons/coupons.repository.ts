@@ -18,6 +18,7 @@ function toDomain(row: CouponWithPurchases): Coupon {
     initialAmount: row.initialAmount,
     remainingAmount: row.remainingAmount,
     tags: row.tags,
+    uncertain: row.uncertain,
     purchases: row.purchases.map((p) => ({
       id: p.id,
       amount: p.amount,
@@ -61,6 +62,7 @@ export class CouponsRepository {
         initialAmount: dto.initialAmount,
         remainingAmount: dto.initialAmount,
         tags: dto.tags ?? [],
+        uncertain: dto.uncertain ?? false,
       },
       include,
     });
@@ -78,6 +80,8 @@ export class CouponsRepository {
           ...(dto.purchaseDate !== undefined && { purchaseDate: new Date(dto.purchaseDate) }),
           ...(dto.expiryDate !== undefined && { expiryDate: new Date(dto.expiryDate) }),
           ...(dto.tags !== undefined && { tags: dto.tags }),
+          ...(dto.uncertain !== undefined && { uncertain: dto.uncertain }),
+          ...(dto.remainingAmount !== undefined && { remainingAmount: dto.remainingAmount }),
         },
         include,
       });

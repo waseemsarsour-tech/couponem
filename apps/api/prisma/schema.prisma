@@ -32,6 +32,7 @@ model Coupon {
   initialAmount   Float
   remainingAmount Float
   tags            String[]
+  uncertain       Boolean    @default(false)
   purchases       Purchase[]
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt

@@ -8,4 +8,5 @@ export class CreateCouponDto {
   expiryDate: string;
   initialAmount: number;
   tags?: string[];
+  uncertain?: boolean;
 }

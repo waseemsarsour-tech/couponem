@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { TagsSelect } from '@/components/tags-select';
 import { api } from '@/lib/api';
 import type { Coupon, CouponSource, CreateCouponInput, UpdateCouponInput } from '@/lib/types';
@@ -40,6 +41,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
     expiryDate: toDateInput(coupon?.expiryDate),
     initialAmount: coupon?.initialAmount?.toString() ?? '',
     tags: coupon?.tags ?? [],
+    uncertain: coupon?.uncertain ?? false,
   });
 
   const mutation = useMutation({
@@ -52,6 +54,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
           purchaseDate: form.purchaseDate,
           expiryDate: form.expiryDate,
           tags: form.tags,
+          uncertain: form.uncertain,
         };
         return api.coupons.update(coupon.id, data);
       }
@@ -63,6 +66,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
         expiryDate: form.expiryDate,
         initialAmount: parseFloat(form.initialAmount),
         tags: form.tags,
+        uncertain: form.uncertain,
       };
       return api.coupons.create(data);
     },
@@ -117,6 +121,13 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
           <Field label="Tags">
             <TagsSelect value={form.tags} onChange={(tags) => set('tags', tags)} />
           </Field>
+          <div
+            className="flex items-center gap-2 cursor-pointer select-none"
+            onClick={() => set('uncertain', !form.uncertain)}
+          >
+            <Checkbox checked={form.uncertain} onCheckedChange={(v: boolean) => set('uncertain', v)} />
+            <span className="text-sm">Not sure if still active (add to Uncertain list)</span>
+          </div>
         </div>
 
         {mutation.error && (

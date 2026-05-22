@@ -18,6 +18,7 @@ export interface Coupon {
   initialAmount: number;
   remainingAmount: number;
   tags: string[];
+  uncertain: boolean;
   purchases: Purchase[];
   urgency: UrgencyLevel | null;
   createdAt: string;
@@ -38,6 +39,7 @@ export interface CreateCouponInput {
   expiryDate: string;
   initialAmount: number;
   tags?: string[];
+  uncertain?: boolean;
 }
 
 export interface UpdateCouponInput {
@@ -47,6 +49,8 @@ export interface UpdateCouponInput {
   purchaseDate?: string;
   expiryDate?: string;
   tags?: string[];
+  uncertain?: boolean;
+  remainingAmount?: number;
 }
 
 export interface UseCouponInput {

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
-import { LogoutButton } from '@/components/logout-button';
+import { UserMenu } from '@/components/user-menu';
 
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <nav className="flex items-center gap-4 text-sm">
                 <a href="/" className="text-slate-300 hover:text-white transition-colors">My Coupons</a>
                 <a href="/history" className="text-slate-300 hover:text-white transition-colors">History</a>
-                <LogoutButton />
+                <UserMenu />
               </nav>
             </div>
           </header>

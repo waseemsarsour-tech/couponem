@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Plus, CheckCircle, Archive } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { CouponCard } from '@/components/coupon-card';
@@ -20,9 +20,17 @@ export default function HomePage() {
   const [addOpen, setAddOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
+  const qc = useQueryClient();
   const { data: rawActive = [], isLoading: loadingActive } = useQuery({ queryKey: ['coupons', 'active'], queryFn: api.coupons.getActive });
   const { data: used = [], isLoading: loadingUsed } = useQuery({ queryKey: ['coupons', 'used'], queryFn: api.coupons.getUsed });
   const { data: expired = [], isLoading: loadingExpired } = useQuery({ queryKey: ['coupons', 'expired'], queryFn: api.coupons.getExpired });
+  const { data: uncertain = [], isLoading: loadingUncertain } = useQuery({ queryKey: ['coupons', 'uncertain'], queryFn: api.coupons.getUncertain });
+
+  const resolveUncertain = useMutation({
+    mutationFn: ({ id, markUsed }: { id: string; markUsed: boolean }) =>
+      api.coupons.update(id, { uncertain: false, ...(markUsed && { remainingAmount: 0 }) }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['coupons'] }),
+  });
 
   const active = sortByExpiry(rawActive);
   const tags = PRESET_TAGS;
@@ -52,6 +60,7 @@ export default function HomePage() {
           <TabsTrigger value="active">Active <CountPill n={active.length} /></TabsTrigger>
           <TabsTrigger value="used">Used <CountPill n={used.length} /></TabsTrigger>
           <TabsTrigger value="expired">Expired <CountPill n={expired.length} /></TabsTrigger>
+          <TabsTrigger value="uncertain">Uncertain <CountPill n={uncertain.length} /></TabsTrigger>
         </TabsList>
 
         <TabsContent value="active">
@@ -83,6 +92,40 @@ export default function HomePage() {
 
         <TabsContent value="expired">
           <CouponGrid coupons={expired} loading={loadingExpired} emptyText="No expired coupons." />
+        </TabsContent>
+
+        <TabsContent value="uncertain">
+          {loadingUncertain ? (
+            <p className="text-muted-foreground py-4">Loading...</p>
+          ) : uncertain.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground"><p className="text-lg">No uncertain coupons.</p></div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {uncertain.map((c) => (
+                <div key={c.id} className="flex flex-col gap-2">
+                  <CouponCard coupon={c} />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+                      disabled={resolveUncertain.isPending}
+                      onClick={() => resolveUncertain.mutate({ id: c.id, markUsed: false })}
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" /> Active
+                    </Button>
+                    <Button
+                      size="sm" variant="outline"
+                      className="flex-1 gap-1.5 text-muted-foreground hover:text-foreground"
+                      disabled={resolveUncertain.isPending}
+                      onClick={() => resolveUncertain.mutate({ id: c.id, markUsed: true })}
+                    >
+                      <Archive className="w-3.5 h-3.5" /> Mark Used
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 

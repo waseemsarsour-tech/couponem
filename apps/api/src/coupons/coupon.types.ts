@@ -23,6 +23,7 @@ export interface Coupon {
   initialAmount: number;
   remainingAmount: number;
   tags: string[];
+  uncertain: boolean;
   purchases: Purchase[];
   createdAt: Date;
   updatedAt: Date;
