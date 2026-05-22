@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { LogoutButton } from '@/components/logout-button';
 
 const geist = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 
@@ -21,9 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="bg-primary rounded-md px-2 py-0.5 text-white text-sm">C</span>
                 CouponEm
               </a>
-              <nav className="flex items-center gap-6 text-sm">
+              <nav className="flex items-center gap-4 text-sm">
                 <a href="/" className="text-slate-300 hover:text-white transition-colors">My Coupons</a>
                 <a href="/history" className="text-slate-300 hover:text-white transition-colors">History</a>
+                <LogoutButton />
               </nav>
             </div>
           </header>
