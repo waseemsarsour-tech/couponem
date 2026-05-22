@@ -11,7 +11,7 @@ export class AuthService {
   ) {}
 
   async login(username: string, password: string): Promise<string> {
-    const user = this.users.findByUsername(username);
+    const user = await this.users.findByUsername(username);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await bcrypt.compare(password, user.passwordHash);
@@ -21,9 +21,9 @@ export class AuthService {
   }
 
   async signup(username: string, password: string): Promise<string> {
-    if (this.users.findByUsername(username)) {
-      throw new BadRequestException('Username already taken');
-    }
+    const existing = await this.users.findByUsername(username);
+    if (existing) throw new BadRequestException('Username already taken');
+
     const user = await this.users.create(username, password);
     return this.jwt.sign({ sub: user.id, username: user.username });
   }

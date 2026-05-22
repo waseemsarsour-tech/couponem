@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser = require('cookie-parser');
 import { AppModule } from './app.module';

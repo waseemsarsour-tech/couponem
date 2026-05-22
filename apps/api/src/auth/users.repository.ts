@@ -1,25 +1,26 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
 import { User } from './user.types';
 
 @Injectable()
 export class UsersRepository implements OnModuleInit {
-  private readonly users: User[] = [];
+  constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
-    // Seed a default user — change these credentials before going to production
-    await this.create('admin', 'admin123');
+    const existing = await this.findByUsername('admin');
+    if (!existing) {
+      await this.create('admin', 'admin123');
+    }
   }
 
   async create(username: string, password: string): Promise<User> {
     const passwordHash = await bcrypt.hash(password, 10);
-    const user: User = { id: randomUUID(), username, passwordHash };
-    this.users.push(user);
-    return user;
+    return this.prisma.user.create({ data: { username, passwordHash } });
   }
 
-  findByUsername(username: string): User | undefined {
-    return this.users.find((u) => u.username === username);
+  async findByUsername(username: string): Promise<User | undefined> {
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    return user ?? undefined;
   }
 }

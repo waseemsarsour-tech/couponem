@@ -6,6 +6,7 @@ import { UpdateCouponDto } from './dto/update-coupon.dto';
 import { UseCouponDto } from './dto/use-coupon.dto';
 
 export type CouponWithUrgency = Coupon & { urgency: UrgencyLevel | null };
+export type PurchaseWithCoupon = Purchase & { couponId: string; couponNumber: string; couponCompany: string };
 
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -18,82 +19,82 @@ function daysUntilExpiry(expiryDate: Date): number {
   const expiry = startOfDay(expiryDate);
   return Math.round((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
-export type PurchaseWithCoupon = Purchase & { couponId: string; couponNumber: string; couponCompany: string };
+
+function withUrgency(coupon: Coupon): CouponWithUrgency {
+  const days = daysUntilExpiry(coupon.expiryDate);
+  let urgency: UrgencyLevel | null = null;
+  if (days >= 0 && coupon.remainingAmount > 0) {
+    if (days < 30) urgency = 'red';
+    else if (days <= 60) urgency = 'yellow';
+    else urgency = 'blue';
+  }
+  return { ...coupon, urgency };
+}
 
 @Injectable()
 export class CouponsService {
   constructor(private readonly repository: CouponsRepository) {}
 
-  getAll(): CouponWithUrgency[] {
-    return this.repository.findAll().map(this.withUrgency);
+  async getAll(userId: string): Promise<CouponWithUrgency[]> {
+    return (await this.repository.findAll(userId)).map(withUrgency);
   }
 
-  getActive(): CouponWithUrgency[] {
+  async getActive(userId: string): Promise<CouponWithUrgency[]> {
     const today = startOfDay(new Date());
-    return this.repository
-      .findAll()
+    return (await this.repository.findAll(userId))
       .filter((c) => c.remainingAmount > 0 && startOfDay(c.expiryDate) >= today)
-      .map(this.withUrgency);
+      .map(withUrgency);
   }
 
-  getUsed(): Coupon[] {
-    return this.repository.findAll().filter((c) => c.remainingAmount === 0);
+  async getUsed(userId: string): Promise<Coupon[]> {
+    return (await this.repository.findAll(userId)).filter((c) => c.remainingAmount === 0);
   }
 
-  getExpired(): Coupon[] {
+  async getExpired(userId: string): Promise<Coupon[]> {
     const today = startOfDay(new Date());
-    return this.repository.findAll().filter((c) => startOfDay(c.expiryDate) < today && c.remainingAmount > 0);
+    return (await this.repository.findAll(userId)).filter(
+      (c) => startOfDay(c.expiryDate) < today && c.remainingAmount > 0,
+    );
   }
 
-  getAllHistory(): PurchaseWithCoupon[] {
-    return this.repository
-      .findAll()
-      .flatMap((c) => c.purchases.map((p) => ({ ...p, couponId: c.id, couponNumber: c.number, couponCompany: c.company })))
+  async getAllHistory(userId: string): Promise<PurchaseWithCoupon[]> {
+    return (await this.repository.findAll(userId))
+      .flatMap((c) =>
+        c.purchases.map((p) => ({ ...p, couponId: c.id, couponNumber: c.number, couponCompany: c.company })),
+      )
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
-  getById(id: string): CouponWithUrgency {
-    const coupon = this.repository.findById(id);
+  async getById(id: string, userId: string): Promise<CouponWithUrgency> {
+    const coupon = await this.repository.findById(id, userId);
     if (!coupon) throw new NotFoundException(`Coupon ${id} not found`);
-    return this.withUrgency(coupon);
+    return withUrgency(coupon);
   }
 
-  getCouponHistory(id: string): Purchase[] {
-    const coupon = this.repository.findById(id);
+  async getCouponHistory(id: string, userId: string): Promise<Purchase[]> {
+    const coupon = await this.repository.findById(id, userId);
     if (!coupon) throw new NotFoundException(`Coupon ${id} not found`);
     return coupon.purchases;
   }
 
-  create(dto: CreateCouponDto): Coupon {
-    return this.repository.create(dto);
+  async create(userId: string, dto: CreateCouponDto): Promise<Coupon> {
+    return this.repository.create(userId, dto);
   }
 
-  update(id: string, dto: UpdateCouponDto): Coupon {
-    const coupon = this.repository.update(id, dto);
+  async update(id: string, userId: string, dto: UpdateCouponDto): Promise<Coupon> {
+    const coupon = await this.repository.update(id, userId, dto);
     if (!coupon) throw new NotFoundException(`Coupon ${id} not found`);
     return coupon;
   }
 
-  use(id: string, dto: UseCouponDto): { coupon: Coupon; purchase: Purchase } {
-    const coupon = this.repository.findById(id);
+  async use(id: string, userId: string, dto: UseCouponDto): Promise<{ coupon: Coupon; purchase: Purchase }> {
+    const coupon = await this.repository.findById(id, userId);
     if (!coupon) throw new NotFoundException(`Coupon ${id} not found`);
     if (coupon.remainingAmount < dto.amount) {
       throw new BadRequestException(
         `Insufficient balance. Remaining: ${coupon.remainingAmount}, requested: ${dto.amount}`,
       );
     }
-
-    return this.repository.addPurchase(id, { amount: dto.amount, date: new Date(), note: dto.note })!;
-  }
-
-  private withUrgency(coupon: Coupon): CouponWithUrgency {
-    const days = daysUntilExpiry(coupon.expiryDate);
-    let urgency: UrgencyLevel | null = null;
-    if (days >= 0 && coupon.remainingAmount > 0) {
-      if (days < 30) urgency = 'red';
-      else if (days <= 60) urgency = 'yellow';
-      else urgency = 'blue';
-    }
-    return { ...coupon, urgency };
+    return (await this.repository.addPurchase(id, userId, { amount: dto.amount, date: new Date(), note: dto.note }))!;
   }
 }
