@@ -31,6 +31,7 @@ model Coupon {
   expiryDate      DateTime
   initialAmount   Float
   remainingAmount Float
+  cvv             String?
   tags            String[]
   uncertain       Boolean    @default(false)
   purchases       Purchase[]

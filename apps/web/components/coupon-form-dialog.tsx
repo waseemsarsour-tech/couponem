@@ -40,6 +40,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
     purchaseDate: toDateInput(coupon?.purchaseDate ?? new Date().toISOString()),
     expiryDate: toDateInput(coupon?.expiryDate),
     initialAmount: coupon?.initialAmount?.toString() ?? '',
+    cvv: coupon?.cvv ?? '',
     tags: coupon?.tags ?? [],
     uncertain: coupon?.uncertain ?? false,
   });
@@ -53,6 +54,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
           source: form.source,
           purchaseDate: form.purchaseDate,
           expiryDate: form.expiryDate,
+          cvv: form.cvv || undefined,
           tags: form.tags,
           uncertain: form.uncertain,
         };
@@ -65,6 +67,7 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
         purchaseDate: form.purchaseDate,
         expiryDate: form.expiryDate,
         initialAmount: parseFloat(form.initialAmount),
+        cvv: form.cvv || undefined,
         tags: form.tags,
         uncertain: form.uncertain,
       };
@@ -92,9 +95,19 @@ export function CouponFormDialog({ open, onClose, coupon }: Props) {
           <Field label="Company">
             <Input value={form.company} onChange={(e) => set('company', e.target.value)} placeholder="Zara, McDonalds..." />
           </Field>
-          <Field label="Coupon Number">
-            <Input value={form.number} onChange={(e) => set('number', e.target.value)} placeholder="1234-5678" />
-          </Field>
+          <div className="grid grid-cols-[1fr_auto] gap-4">
+            <Field label="Coupon Number">
+              <Input value={form.number} onChange={(e) => set('number', e.target.value)} placeholder="1234-5678" />
+            </Field>
+            <Field label="CVV (optional)">
+              <Input
+                value={form.cvv}
+                onChange={(e) => set('cvv', e.target.value.replace(/\D/g, '').slice(0, 3))}
+                placeholder="123"
+                className="w-20"
+              />
+            </Field>
+          </div>
           <Field label="Source">
             <Select value={form.source} onValueChange={(v) => set('source', v as CouponSource)}>
               <SelectTrigger><SelectValue /></SelectTrigger>

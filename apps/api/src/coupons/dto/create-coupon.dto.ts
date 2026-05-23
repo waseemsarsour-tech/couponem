@@ -7,6 +7,7 @@ export class CreateCouponDto {
   purchaseDate: string;
   expiryDate: string;
   initialAmount: number;
+  cvv?: string;
   tags?: string[];
   uncertain?: boolean;
 }
