@@ -6,6 +6,7 @@ export class UpdateCouponDto {
   source?: CouponSource;
   purchaseDate?: string;
   expiryDate?: string;
+  cvv?: string;
   tags?: string[];
   uncertain?: boolean;
   remainingAmount?: number;

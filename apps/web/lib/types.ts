@@ -17,6 +17,7 @@ export interface Coupon {
   expiryDate: string;
   initialAmount: number;
   remainingAmount: number;
+  cvv?: string;
   tags: string[];
   uncertain: boolean;
   purchases: Purchase[];
@@ -38,6 +39,7 @@ export interface CreateCouponInput {
   purchaseDate: string;
   expiryDate: string;
   initialAmount: number;
+  cvv?: string;
   tags?: string[];
   uncertain?: boolean;
 }
@@ -48,6 +50,7 @@ export interface UpdateCouponInput {
   source?: CouponSource;
   purchaseDate?: string;
   expiryDate?: string;
+  cvv?: string;
   tags?: string[];
   uncertain?: boolean;
   remainingAmount?: number;

@@ -22,6 +22,7 @@ export interface Coupon {
   expiryDate: Date;
   initialAmount: number;
   remainingAmount: number;
+  cvv?: string;
   tags: string[];
   uncertain: boolean;
   purchases: Purchase[];

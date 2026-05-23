@@ -66,6 +66,12 @@ export function CouponCard({ coupon }: { coupon: Coupon }) {
             <Calendar className="w-3.5 h-3.5 shrink-0" />
             <span>Expires {formatDate(coupon.expiryDate)}</span>
           </div>
+          {coupon.cvv && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="font-medium">CVV:</span>
+              <span className="font-mono tracking-widest">{coupon.cvv}</span>
+            </div>
+          )}
           {coupon.tags.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
               <Tag className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
